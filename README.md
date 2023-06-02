@@ -1,3 +1,5 @@
 # Background_Clusters
 
 This repository deals with my side project at MSU REU Summer 2023, working with Dr. David Turner. I was given the task of modeling background clusters in a LOVOCCS fits image (116 of them). From this website, (https://www.scidb.cn/en/detail?dataSetId=7797b553a23846a187b7746d8fc555a5) I downloaded three files (galaxy_clusters_desdr2.fits, galaxy_clusters_desidr9.fits, and galaxy_clusters_hscpdr3_wide.fits) to match the nearest clusters from these data to the LOVOCCS clusters. 
+
+To start, I used the program TOPCAT to match the big catalogue clusters with the LOVOCCS clusters within 1 degree on the sky. These new matches were saved as a .csv file from which I used in my matching_clusters.py code. In this python script, I converted the LOVOCCS cluster's r500 to decimal degrees and calculated the distance (in decimal degrees) from the LOVOCCS clusters and their matches. If these distances were less than 2 times the r500 of the LOVOCCS cluster then I considered these a "true" match and saved them. These matches can be written into a new .csv file using the write_file() function. 
