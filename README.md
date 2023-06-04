@@ -2,7 +2,9 @@
 
 From this website, (https://www.scidb.cn/en/detail?dataSetId=7797b553a23846a187b7746d8fc555a5) I downloaded three files (galaxy_clusters_desdr2.fits, galaxy_clusters_desidr9.fits, and galaxy_clusters_hscpdr3_wide.fits) to match the nearest clusters from these data to the LOVOCCS clusters. 
 
-To start, I used the program TOPCAT to match the big catalogue clusters with the LOVOCCS clusters within 1 degree on the sky. These new matches were saved as a .csv file from which I used in my matching_clusters.py code. In this Python script, I converted the LOVOCCS clusters r500 to decimal degrees and calculated the distance (in decimal degrees) from the LOVOCCS clusters and their matches. If these distances were less than 2 times the r500 of the LOVOCCS cluster then I considered these a "true" match and saved them. These "true" matches can be written into a new .csv file using the write_file() function. 
+To start, I used the program TOPCAT to match the big catalogue clusters with the LOVOCCS clusters within 1 degree on the sky (using the join method). These new matches were saved as a .csv file from which I used in my matching_clusters.py code. This was changed on June 4, 2023 so that the matching_clusters.py performs this same action without needing to use TOPCAT. 
+
+In this Python script, I converted the LOVOCCS clusters r500 to decimal degrees and calculated the distance (in decimal degrees) from the LOVOCCS clusters and their matches. If these distances were less than 2 times the r500 of the LOVOCCS cluster then I considered these a "true" match and saved them. These "true" matches can be written into a new .csv file using the write_file() function. 
 
 From here, I wrote .reg region files for each LOVOCCS cluster and its "true" matches. First, I separated each LOVOCCS cluster and its matches into a separate list, and then created coordinates for the matched clusters per LOVOCCS cluster. The coordinates were stored in the form: circle(RAd, decd, radius") where the RA and dec are in decimal degrees and the r500 of the matched cluster was stored in arcseconds.
 
