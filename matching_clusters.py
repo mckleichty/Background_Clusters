@@ -3,7 +3,9 @@
 Created on Fri May 26 15:10:11 2023
 
 @author: McK
-last edited: Monday May 29, 2023
+last edited: Sunday June 4, 2023
+
+now matches clusters within 1 deg of each other without first using topcat's join method.
 
 writes region files of each lovoccs cluster with its potential matches as the coordinates
 of the region file. these matches are based off of calculating the angular distance
@@ -17,6 +19,9 @@ from astropy import units as u
 import csv
 import subprocess
 import os
+from astropy.coordinates import SkyCoord
+from astropy.io import fits
+from astropy.table import Table
 
 #imports from David Turner
 from astropy.cosmology import Cosmology
@@ -24,17 +29,67 @@ from astropy.units import Quantity
 from astropy.cosmology import LambdaCDM
 DEFAULT_COSMO = LambdaCDM(70, 0.3, 0.7)
 
-#starting code
-matched_table = pd.read_csv(r'/Users/McK/Desktop/desidr9_matches.csv', delimiter = ',')
+#importing data from big catalog and lovoccs csv file
+desi = fits.open(r'/Users/McK/Desktop/galaxy_clusters_desidr9.fits')
+lovoccs = pd.read_csv(r'/Users/McK/Desktop/comb_ims_for_mckenna/lovoccs_xmm_subsamp.csv')
+table = Table(desi[1].data)
 
-z = matched_table["redshift"] #redshift for lovoccs cluster
-r500 = matched_table["R500"] #r500 of lovoccs cluster
-ra_lov = matched_table["ra"] #RA of lovoccs cluster
-dec_lov = matched_table["dec"] #dec of lovoccs cluster
-ra_other = matched_table["RA_PEAK"] #RA from other cluster
-dec_other = matched_table["DEC_PEAK"] #dec from other cluster
-r500_other = matched_table["R_500"] #r500 of matched cluster
-z_other = matched_table["PHOTO_Z_PEAK"] #redshift of matched cluster
+ra_desi = table['RA_PEAK']
+dec_desi = table["DEC_PEAK"]
+z_desi = table["PHOTO_Z_PEAK"]
+r500_desi = table["R_500"]
+
+ra_lovoccs = lovoccs["ra"]
+dec_lovoccs = lovoccs["dec"]
+z_lovoccs = lovoccs["redshift"]
+r500_lovoccs = lovoccs["R500"]
+name_lov = lovoccs["name"]
+
+catalog1_coords = SkyCoord(ra=ra_lovoccs * u.deg, dec=dec_lovoccs * u.deg)
+catalog2_coords = SkyCoord(ra=ra_desi * u.deg, dec=dec_desi * u.deg)
+
+#empty list to store matches
+matched_clusters = []
+
+#loop through lovoccs clusters
+for i, cluster1_coord in enumerate(catalog1_coords):
+    separations = cluster1_coord.separation(catalog2_coords) #calculate angular separation with catalog2 clusters
+    within_1deg = np.where(separations < 1 * u.deg)[0] #find catalog2 clusters within 1 degree
+
+    if len(within_1deg) > 0:
+        matching_indices = within_1deg.tolist() #create a list of matching cluster indices
+        matched_clusters.append([i] + matching_indices) #append the list to the matched_clusters list
+        
+total_matches = sum(len(matches[1:]) for matches in matched_clusters)
+#same number as before using TOPCAT
+
+#getting redshift, r500, ra, dec vals from matches
+z = [] #redshift for lovoccs cluster
+r500 = [] #r500 of lovoccs cluster
+ra_lov = [] #RA of lovoccs cluster
+dec_lov = [] #dec of lovoccs cluster
+ra_other = [] #RA from other cluster
+dec_other = [] #dec from other cluster
+r500_other = [] #r500 of matched cluster
+z_other = [] #redshift of matched cluster
+name = [] #name of lovoccs cluster
+
+for matches in matched_clusters:
+    catalog1_index = matches[0] #index of lovoccs cluster
+    catalog2_indices = matches[1:] #index of catalog cluster that matches lovoccs
+    
+    for catalog2_index in catalog2_indices:
+        
+        #for each macthed cluster, append the following:
+        ra_lov.append(ra_lovoccs[catalog1_index])
+        ra_other.append(ra_desi[catalog2_index])
+        dec_lov.append(dec_lovoccs[catalog1_index])
+        dec_other.append(dec_desi[catalog2_index])
+        z.append(z_lovoccs[catalog1_index])
+        z_other.append(z_desi[catalog2_index])
+        r500.append(r500_lovoccs[catalog1_index])
+        r500_other.append(r500_desi[catalog2_index])
+        name.append(name_lov[catalog1_index])
 
 def rad_to_ang(rad: Quantity, z: float, cosmo: Cosmology = DEFAULT_COSMO) -> Quantity:
     """
@@ -217,14 +272,14 @@ def region_file(coords, name, directory):
     with open(filename, 'w') as file:
         file.write(file_content)
 
-name = matched_table["name"] #name of lovoccs cluster
+#name = matched_table["name"] #name of lovoccs cluster
 dr = r'/Users/McK/Desktop/reu2023/ds9_test'
 #already saved files to above directory
 #for i in range(len(lov_coords)):
     #print(i)
     #if i == 31:
         #continue
-   # else:
+    #else:
         #region_file(lov_coords[i], name[lov_match[i][0]], dr)
 
 #8. opening ds9, uploading the fits and region files, saving image to output directory
