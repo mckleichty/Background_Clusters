@@ -1,0 +1,8 @@
+# Region file format: DS9 version 4.1
+global color=red dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+fk5
+circle(358.54887139227776d,-10.354215094240423d,1181.2408244953072") # text = {"ID = 89.0", "R500 = 1.162 Mpc", "Z = 0.050", "λ = 315.707"} font="times 8"
+circle(358.72856367466125d,-10.235726495565098d,93.11606752274837") # text = {"ID = 89.1", "R500 = 0.643 Mpc", "Z = 0.645", "λ = 86.817"} font="times 8"
+circle(358.85487388818177d,-10.44409881158124d,219.85211491052752") # text = {"ID = 89.2", "R500 = 1.024 Mpc", "Z = 0.320", "λ = 262.462"} font="times 8"
+circle(359.04945933599373d,-10.360475522090542d,95.39339442801223") # text = {"ID = 89.3", "R500 = 0.649 Mpc", "Z = 0.624", "λ = 92.628"} font="times 8"
+circle(358.03613325491875d,-10.476533421968723d,88.89457039207039") # text = {"ID = 89.4", "R500 = 0.618 Mpc", "Z = 0.654", "λ = 80.519"} font="times 8"
